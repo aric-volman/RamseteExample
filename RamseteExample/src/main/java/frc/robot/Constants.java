@@ -44,12 +44,12 @@ public final class Constants {
         // PLACEHOLDER VALUES FOR SIMULATION
         public static final double kS = 0.22;
         public static final double kV= 1.98;
-        public static final double kA= 0.2;
+        public static final double kA= 0.5;
     
-        public static final double kPVel = 0.1;
+        public static final double kPVel = 0.5;
 
-        public static final double kMaxSpeed = 0.5; // In meters per second
-        public static final double kMaxAcceleration = 10.0; // In meters per second per second
+        public static final double kMaxSpeed = 2.0; // In meters per second
+        public static final double kMaxAcceleration = 3.0; // In meters per second per second
 
         public static final double kTrackwidthMeters = 0.69; // Average chassis width - From AndyMark measurements
         public static final DifferentialDriveKinematics kDriveKinematics =

@@ -13,10 +13,12 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
@@ -33,8 +35,8 @@ public class DriveTrain extends SubsystemBase {
 
   private final WPI_TalonSRX leftDriveTalon;
   private final WPI_TalonSRX rightDriveTalon;
-  private final WPI_VictorSPX leftVictor;
-  private final WPI_VictorSPX rightVictor;
+  //private final WPI_VictorSPX leftVictor;
+  //private final WPI_VictorSPX rightVictor;
 
   private final TalonSRXSimCollection leftDriveSim;
   private final TalonSRXSimCollection rightDriveSim;
@@ -56,18 +58,18 @@ public class DriveTrain extends SubsystemBase {
     leftDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.LeftDriveTalonPort);
     rightDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.RightDriveTalonPort);
 
-    leftVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.LeftDriveVictorPort);
-    rightVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.RightDriveVictorPort);
+    //leftVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.LeftDriveVictorPort);
+    //rightVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.RightDriveVictorPort);
 
       leftDriveSim = leftDriveTalon.getSimCollection();
       rightDriveSim = rightDriveTalon.getSimCollection();
       driveSim = new DifferentialDrivetrainSim(
-        DCMotor.getCIM(4),        // 2 CIMS on each side of the drivetrain.
+        DCMotor.getCIM(2),        // 2 CIMS on each side of the drivetrain.
         10.71,               //Standard AndyMark Gearing reduction.
         2.1,                      //MOI of 2.1 kg m^2 (from CAD model).
         26.5,                     //Mass of the robot is 26.5 kg.
         Units.inchesToMeters(3.0),  //Robot uses 3" radius (6" diameter) wheels.
-        0.69, null
+        0.69, VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
       );
   
     leftDriveTalon.setNeutralMode(NeutralMode.Coast);
@@ -82,8 +84,8 @@ public class DriveTrain extends SubsystemBase {
     leftDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
     rightDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
 
-    leftVictor.follow(leftDriveTalon);
-    rightVictor.follow(rightDriveTalon);
+    //leftVictor.follow(leftDriveTalon);
+    //rightVictor.follow(rightDriveTalon);
 
     resetEncoders();
     
@@ -317,5 +319,9 @@ rightDriveSim.setQuadratureVelocity(
    */
   public double getTurnRate() {
     return navx.getRate();
+  }
+
+  public Field2d getField2d() {
+    return field;
   }
 }
