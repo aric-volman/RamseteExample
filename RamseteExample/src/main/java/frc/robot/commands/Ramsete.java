@@ -74,8 +74,8 @@ public class Ramsete extends SequentialCommandGroup {
               Constants.RamseteConstants.kA),
               Constants.RamseteConstants.kDriveKinematics,
             RobotContainer.dt::getWheelSpeeds,
-            new PIDController(Constants.RamseteConstants.kVel, 0, 0),
-            new PIDController(Constants.RamseteConstants.kVel, 0, 0),
+            new PIDController(Constants.RamseteConstants.kPVel, 0, 0),
+            new PIDController(Constants.RamseteConstants.kPVel, 0, 0),
             // RamseteCommand passes volts to the callback
             RobotContainer.dt::tankDriveVolts,
             RobotContainer.dt);

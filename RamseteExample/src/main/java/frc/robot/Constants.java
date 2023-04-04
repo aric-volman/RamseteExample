@@ -38,10 +38,10 @@ public final class Constants {
         public static final double kV= 0.0;
         public static final double kA= 0.0;
     
-        public static final double kVel = 0.0;
+        public static final double kPVel = 0.0;
 
-        public static final double kMaxSpeed = 0.0; // In meters per second
-        public static final double kMaxAcceleration = 0.0; // In meters per second per second
+        public static final double kMaxSpeed = 0.5; // In meters per second
+        public static final double kMaxAcceleration = 1.0; // In meters per second per second
 
         public static final double kTrackwidthMeters = 0.69; // Average chassis width - From AndyMark measurements
         public static final DifferentialDriveKinematics kDriveKinematics =
