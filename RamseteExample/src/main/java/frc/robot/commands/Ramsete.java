@@ -65,22 +65,22 @@ public class Ramsete extends SequentialCommandGroup {
     // Install:
     // https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib.json
     // An example trajectory to follow.  All units in meters.
-    Trajectory trajectory =
+    /*Trajectory trajectory =
     TrajectoryGenerator.generateTrajectory(
         // Start at the origin facing the +X direction
         new Pose2d(0, 0, new Rotation2d(0)),
         // Pass through these two interior waypoints, making an 's' curve path
         List.of(),
         // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(0.3, 0, new Rotation2d(0)),
+        new Pose2d(1.0, 0, new Rotation2d(0)),
         // Pass config
-        config);
-    /*try {
+        config);*/
+    try {
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
       trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
     } catch (IOException ex) {
        DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    }*/
+    }
 
     RamseteCommand ramseteCommand =
         new RamseteCommand(

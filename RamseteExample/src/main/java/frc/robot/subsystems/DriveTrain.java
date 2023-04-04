@@ -62,11 +62,11 @@ public class DriveTrain extends SubsystemBase {
       leftDriveSim = leftDriveTalon.getSimCollection();
       rightDriveSim = rightDriveTalon.getSimCollection();
       driveSim = new DifferentialDrivetrainSim(
-        DCMotor.getCIM(2),        // 2 CIMS on each side of the drivetrain.
+        DCMotor.getCIM(4),        // 2 CIMS on each side of the drivetrain.
         10.71,               //Standard AndyMark Gearing reduction.
         2.1,                      //MOI of 2.1 kg m^2 (from CAD model).
         26.5,                     //Mass of the robot is 26.5 kg.
-        Units.inchesToMeters(6.0),  //Robot uses 3" radius (6" diameter) wheels.
+        Units.inchesToMeters(3.0),  //Robot uses 3" radius (6" diameter) wheels.
         0.69, null
       );
   
@@ -150,11 +150,10 @@ public class DriveTrain extends SubsystemBase {
   public void periodic() {
     if (RobotBase.isReal()) {
     // This method will be called once per scheduler run
-
-    odometry.update(navx.getRotation2d(), getLeftDistance(), getRightDistance());
     SmartDashboard.putData("Field", field);
     field.setRobotPose(getPose());
     }
+    odometry.update(navx.getRotation2d(), getLeftDistance(), getRightDistance());
   }
 
   @Override
@@ -176,23 +175,27 @@ leftDriveSim.setQuadratureVelocity(
       ));
 rightDriveSim.setQuadratureRawPosition(
       distanceToNativeUnits(
-          -driveSim.getRightPositionMeters()
+          driveSim.getRightPositionMeters()
       ));
 rightDriveSim.setQuadratureVelocity(
       velocityToNativeUnits(
           -driveSim.getRightVelocityMetersPerSecond()
       ));
-      driveSim.update(0.02);
+      //driveSim.update(0.00000002);
 
       // Update Gyro
       int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
       SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
       angle.set(-driveSim.getHeading().getDegrees());
 
-      odometry.update(navx.getRotation2d(), getLeftDistance(), getRightDistance());
       SmartDashboard.putData("Field", field);
       field.setRobotPose(driveSim.getPose());
       SmartDashboard.putNumber("Heading:", driveSim.getHeading().getDegrees());
+
+      SmartDashboard.putNumber("LeftPosition", driveSim.getLeftPositionMeters());
+      SmartDashboard.putNumber("RightPosition", driveSim.getRightPositionMeters());
+      SmartDashboard.putNumber("LeftVel", driveSim.getLeftVelocityMetersPerSecond());
+      SmartDashboard.putNumber("RightVel", driveSim.getRightVelocityMetersPerSecond());
   }
 
   /**
