@@ -4,10 +4,19 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
 
 public class RobotContainer {
+
+  public static DriveTrain dt = new DriveTrain();
+  public Ramsete ramsete = new Ramsete();
+
   public RobotContainer() {
     configureBindings();
   }
@@ -15,6 +24,7 @@ public class RobotContainer {
   private void configureBindings() {}
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return ramsete;
   }
+
 }
