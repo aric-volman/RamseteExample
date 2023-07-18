@@ -25,7 +25,8 @@ public final class Constants {
 
     public static final class DriveToLineConstants {
         public static final double wheelDiameterInInches = 6.0;
-        public static final double ticksToMeters = (1.0/(wheelDiameterInInches*0.0254*Math.PI))*4096.0;
+        // Somehow had to divide the constant by 2
+        public static final double ticksToMeters = (1.0/(2*wheelDiameterInInches*0.0254*Math.PI))*4096.0;
     }
 
     public static final class USBOrder {
@@ -43,13 +44,16 @@ public final class Constants {
         */
         // PLACEHOLDER VALUES FOR SIMULATION
         public static final double kS = 0.22;
-        public static final double kV= 1.98;
-        public static final double kA= 0.5;
-    
-        public static final double kPVel = 0.5;
+        public static final double kV= 2.98;
+        public static final double kA= 0.2;
 
-        public static final double kMaxSpeed = 2.0; // In meters per second
-        public static final double kMaxAcceleration = 3.0; // In meters per second per second
+        public static final double kVangular = 1.0; // 1.0
+        public static final double kAangular = 1.0; // 1.0
+    
+        public static final double kPVel = 4.6; // 0.6
+
+        public static final double kMaxSpeed = 1; // In meters per second
+        public static final double kMaxAcceleration = 3; // 3 In meters per second per second
 
         public static final double kTrackwidthMeters = 0.69; // Average chassis width - From AndyMark measurements
         public static final DifferentialDriveKinematics kDriveKinematics =

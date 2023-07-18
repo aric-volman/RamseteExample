@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotWheelSize;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -63,17 +66,34 @@ public class DriveTrain extends SubsystemBase {
 
       leftDriveSim = leftDriveTalon.getSimCollection();
       rightDriveSim = rightDriveTalon.getSimCollection();
-      driveSim = new DifferentialDrivetrainSim(
-        DCMotor.getCIM(2),        // 2 CIMS on each side of the drivetrain.
-        10.71,               //Standard AndyMark Gearing reduction.
-        2.1,                      //MOI of 2.1 kg m^2 (from CAD model).
-        26.5,                     //Mass of the robot is 26.5 kg.
-        Units.inchesToMeters(3.0),  //Robot uses 3" radius (6" diameter) wheels.
-        0.69, VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
+      
+      /*
+      driveSim = DifferentialDrivetrainSim.createKitbotSim(
+        KitbotMotor.kDualCIMPerSide, // 2 CIMs per side.
+        KitbotGearing.k10p71,        // 10.71:1
+        KitbotWheelSize.kSixInch,    // 6" diameter wheels.
+        VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
       );
+      */
+
+      // Create the simulation model of our drivetrain.
+      driveSim = new DifferentialDrivetrainSim(
+        // Create a linear system from our identification gains.
+        LinearSystemId.identifyDrivetrainSystem(Constants.RamseteConstants.kV, Constants.RamseteConstants.kA, Constants.RamseteConstants.kVangular, Constants.RamseteConstants.kAangular),
+        DCMotor.getCIM(1),       // 1 CIM motor on each side of the drivetrain.
+        10.71,                    // 10.71:1 gearing reduction.
+        Constants.RamseteConstants.kTrackwidthMeters,   // The track width is 0.7112 meters.
+        Units.inchesToMeters(3), // The robot uses 3" radius wheels.
+
+        // The standard deviations for measurement noise:
+        // x and y:          0.001 m
+        // heading:          0.001 rad
+        // l and r velocity: 0.1   m/s
+        // l and r position: 0.005 m
+        VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
   
-    leftDriveTalon.setNeutralMode(NeutralMode.Coast);
-    rightDriveTalon.setNeutralMode(NeutralMode.Coast);
+    leftDriveTalon.setNeutralMode(NeutralMode.Brake);
+    rightDriveTalon.setNeutralMode(NeutralMode.Brake);
 
     leftDriveTalon.setInverted(false);
     rightDriveTalon.setInverted(true);
@@ -92,6 +112,9 @@ public class DriveTrain extends SubsystemBase {
     drive = new DifferentialDrive(leftDriveTalon, rightDriveTalon);
 
     odometry = new DifferentialDriveOdometry(navx.getRotation2d(), getLeftDistance(), getRightDistance());
+
+    leftDriveTalon.setExpiration(.1);
+    rightDriveTalon.setExpiration(.1);
 
   }
 
@@ -118,7 +141,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the displacement in meters (m)
    */
   public double getLeftDistance() {
-    return leftDriveTalon.getSelectedSensorPosition()/Constants.DriveToLineConstants.ticksToMeters;
+    return -leftDriveTalon.getSelectedSensorPosition()/Constants.DriveToLineConstants.ticksToMeters;
   }
 
   /**
@@ -127,7 +150,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the displacement in meters (m)
    */
   public double getRightDistance() {
-    return rightDriveTalon.getSelectedSensorPosition()/Constants.DriveToLineConstants.ticksToMeters;
+    return -rightDriveTalon.getSelectedSensorPosition()/Constants.DriveToLineConstants.ticksToMeters;
   }
 
   /**
@@ -136,7 +159,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the linear velocity in meters/s (m/s)
    */
   public double getLeftSpeed() {
-    return (leftDriveTalon.getSelectedSensorVelocity()*10.0)/Constants.DriveToLineConstants.ticksToMeters;
+    return -(leftDriveTalon.getSelectedSensorVelocity()*10.0)/Constants.DriveToLineConstants.ticksToMeters;
   }
 
   /**
@@ -145,7 +168,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the linear velocity in meters/s (m/s)
    */
   public double getRightSpeed() {
-    return (rightDriveTalon.getSelectedSensorVelocity()*10.0)/Constants.DriveToLineConstants.ticksToMeters;
+    return -(rightDriveTalon.getSelectedSensorVelocity()*10.0)/Constants.DriveToLineConstants.ticksToMeters;
   }
 
   @Override
@@ -164,9 +187,9 @@ public class DriveTrain extends SubsystemBase {
     // https://www.chiefdelphi.com/t/drivebase-simulation-example-with-talonsrx-encoders/390390/10
 
     driveSim.setInputs(simLeftVolts, simRightVolts);
-    driveSim.update(0.020);
-
+    driveSim.update(0.02);
     // Update Quadrature
+
     leftDriveSim.setQuadratureRawPosition(
       distanceToNativeUnits(
           driveSim.getLeftPositionMeters()
@@ -177,13 +200,12 @@ leftDriveSim.setQuadratureVelocity(
       ));
 rightDriveSim.setQuadratureRawPosition(
       distanceToNativeUnits(
-          driveSim.getRightPositionMeters()
+          -driveSim.getRightPositionMeters()
       ));
 rightDriveSim.setQuadratureVelocity(
       velocityToNativeUnits(
           -driveSim.getRightVelocityMetersPerSecond()
       ));
-      //driveSim.update(0.00000002);
 
       // Update Gyro
       int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
@@ -194,10 +216,11 @@ rightDriveSim.setQuadratureVelocity(
       field.setRobotPose(driveSim.getPose());
       SmartDashboard.putNumber("Heading:", driveSim.getHeading().getDegrees());
 
-      SmartDashboard.putNumber("LeftPosition", driveSim.getLeftPositionMeters());
-      SmartDashboard.putNumber("RightPosition", driveSim.getRightPositionMeters());
-      SmartDashboard.putNumber("LeftVel", driveSim.getLeftVelocityMetersPerSecond());
-      SmartDashboard.putNumber("RightVel", driveSim.getRightVelocityMetersPerSecond());
+      SmartDashboard.putNumber("LeftPosition", getLeftDistance());
+      SmartDashboard.putNumber("RightPosition", getRightDistance());
+      SmartDashboard.putNumber("LeftVel", getLeftSpeed());
+      SmartDashboard.putNumber("RightVel", getRightSpeed());
+    
   }
 
   /**

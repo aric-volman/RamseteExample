@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.0,
-        "y": 0.0
+        "x": 4.253564210983097,
+        "y": -0.08363749852471272
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -24,12 +24,62 @@
     },
     {
       "anchorPoint": {
-        "x": 3.0309646682812406,
-        "y": 3.0
+        "x": 5.00241999078581,
+        "y": 4.08031512967008
       },
       "prevControl": {
-        "x": 1.8384530709646558,
-        "y": 2.5659612745595197
+        "x": 6.328671753197975,
+        "y": 1.6309312441340988
+      },
+      "nextControl": {
+        "x": 3.676168228373643,
+        "y": 6.529699015206059
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.875637885296032,
+        "y": 1.0096241121932643
+      },
+      "prevControl": {
+        "x": 0.5984064072867543,
+        "y": 2.431461587211711
+      },
+      "nextControl": {
+        "x": 5.152869363305308,
+        "y": -0.41221336282518184
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.224787808881871,
+        "y": 1.6906723145130254
+      },
+      "prevControl": {
+        "x": 6.101655685758053,
+        "y": 1.0215723262690508
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -48,5 +98,12 @@
   "maxVelocity": 1.0,
   "maxAcceleration": null,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 0.40885372146000143,
+      "names": [
+        "event"
+      ]
+    }
+  ]
 }
