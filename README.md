@@ -1,2 +1,3 @@
 # RamseteExample
- A project hopefully using WPILib Ramsete controller
+
+A working example of Ramsete simulation using WPILib's simulator

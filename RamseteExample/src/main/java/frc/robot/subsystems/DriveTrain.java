@@ -70,13 +70,13 @@ public class DriveTrain extends SubsystemBase {
       leftDriveSim = leftDriveTalon.getSimCollection();
       rightDriveSim = rightDriveTalon.getSimCollection();
       
-      /*
-      driveSim = DifferentialDrivetrainSim.createKitbotSim(
+      
+      /*driveSim = DifferentialDrivetrainSim.createKitbotSim(
         KitbotMotor.kDualCIMPerSide, // 2 CIMs per side.
         KitbotGearing.k10p71,        // 10.71:1
         KitbotWheelSize.kSixInch,    // 6" diameter wheels.
         VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
-      ); */
+      );*/
       
     
       // Create the simulation model of our drivetrain.
