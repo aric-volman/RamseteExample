@@ -32,20 +32,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
 
 public class DriveTrain extends SubsystemBase {
   /** Creates a new DriveTrain. */
 
   private final WPI_TalonSRX leftDriveTalon;
   private final WPI_TalonSRX rightDriveTalon;
-  //private final WPI_VictorSPX leftVictor;
-  //private final WPI_VictorSPX rightVictor;
+  // private final WPI_VictorSPX leftVictor;
+  // private final WPI_VictorSPX rightVictor;
 
   private final TalonSRXSimCollection leftDriveSim;
   private final TalonSRXSimCollection rightDriveSim;
-  private final DifferentialDrivetrainSim driveSim;
 
   private final DifferentialDrive drive;
+  private final DifferentialDrivetrainSim driveSim;
 
   private final DifferentialDriveOdometry odometry;
 
@@ -53,6 +54,8 @@ public class DriveTrain extends SubsystemBase {
 
   private Field2d field = new Field2d();
 
+
+  // Provides variable to store motor voltage for simulator use
   private double simRightVolts;
   private double simLeftVolts;
 
@@ -61,8 +64,8 @@ public class DriveTrain extends SubsystemBase {
     leftDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.LeftDriveTalonPort);
     rightDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.RightDriveTalonPort);
 
-    //leftVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.LeftDriveVictorPort);
-    //rightVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.RightDriveVictorPort);
+    // leftVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.LeftDriveVictorPort);
+    // rightVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.RightDriveVictorPort);
 
       leftDriveSim = leftDriveTalon.getSimCollection();
       rightDriveSim = rightDriveTalon.getSimCollection();
@@ -73,9 +76,9 @@ public class DriveTrain extends SubsystemBase {
         KitbotGearing.k10p71,        // 10.71:1
         KitbotWheelSize.kSixInch,    // 6" diameter wheels.
         VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
-      );
-      */
-
+      ); */
+      
+    
       // Create the simulation model of our drivetrain.
       driveSim = new DifferentialDrivetrainSim(
         // Create a linear system from our identification gains.
@@ -92,8 +95,9 @@ public class DriveTrain extends SubsystemBase {
         // l and r position: 0.005 m
         VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
   
-    leftDriveTalon.setNeutralMode(NeutralMode.Brake);
-    rightDriveTalon.setNeutralMode(NeutralMode.Brake);
+    // Motor settings
+    leftDriveTalon.setNeutralMode(NeutralMode.Coast);
+    rightDriveTalon.setNeutralMode(NeutralMode.Coast);
 
     leftDriveTalon.setInverted(false);
     rightDriveTalon.setInverted(true);
@@ -104,8 +108,8 @@ public class DriveTrain extends SubsystemBase {
     leftDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
     rightDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
 
-    //leftVictor.follow(leftDriveTalon);
-    //rightVictor.follow(rightDriveTalon);
+    // leftVictor.follow(leftDriveTalon);
+    // rightVictor.follow(rightDriveTalon);
 
     resetEncoders();
     
@@ -186,40 +190,46 @@ public class DriveTrain extends SubsystemBase {
     // Sim Stuff
     // https://www.chiefdelphi.com/t/drivebase-simulation-example-with-talonsrx-encoders/390390/10
 
+    // Set inputs of voltage
     driveSim.setInputs(simLeftVolts, simRightVolts);
+    // Update with dt of 0.02
     driveSim.update(0.02);
-    // Update Quadrature
+
+    // Update Quadrature for Left
 
     leftDriveSim.setQuadratureRawPosition(
       distanceToNativeUnits(
           driveSim.getLeftPositionMeters()
       ));
-leftDriveSim.setQuadratureVelocity(
+    leftDriveSim.setQuadratureVelocity(
       velocityToNativeUnits(
           driveSim.getLeftVelocityMetersPerSecond()
       ));
-rightDriveSim.setQuadratureRawPosition(
+    
+    // Update Quadrature for Right
+    
+    rightDriveSim.setQuadratureRawPosition(
       distanceToNativeUnits(
           -driveSim.getRightPositionMeters()
       ));
-rightDriveSim.setQuadratureVelocity(
+    rightDriveSim.setQuadratureVelocity(
       velocityToNativeUnits(
           -driveSim.getRightVelocityMetersPerSecond()
       ));
 
-      // Update Gyro
-      int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
-      SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
-      angle.set(-driveSim.getHeading().getDegrees());
+    // Update Gyro
+    int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
+    SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
+    angle.set(-driveSim.getHeading().getDegrees());
 
-      SmartDashboard.putData("Field", field);
-      field.setRobotPose(driveSim.getPose());
-      SmartDashboard.putNumber("Heading:", driveSim.getHeading().getDegrees());
+    field.setRobotPose(driveSim.getPose());
+    SmartDashboard.putData("Field", field);
+    SmartDashboard.putNumber("Heading:", driveSim.getHeading().getDegrees());
 
-      SmartDashboard.putNumber("LeftPosition", getLeftDistance());
-      SmartDashboard.putNumber("RightPosition", getRightDistance());
-      SmartDashboard.putNumber("LeftVel", getLeftSpeed());
-      SmartDashboard.putNumber("RightVel", getRightSpeed());
+    SmartDashboard.putNumber("LeftPosition", getLeftDistance());
+    SmartDashboard.putNumber("RightPosition", getRightDistance());
+    SmartDashboard.putNumber("LeftVel", getLeftSpeed());
+    SmartDashboard.putNumber("RightVel", getRightSpeed());
     
   }
 
@@ -344,6 +354,11 @@ rightDriveSim.setQuadratureVelocity(
     return navx.getRate();
   }
 
+  /**
+   * Returns the field.
+   *
+   * @return The field
+   */
   public Field2d getField2d() {
     return field;
   }

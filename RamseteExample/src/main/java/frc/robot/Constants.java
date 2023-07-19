@@ -35,22 +35,15 @@ public final class Constants {
     }
 
     public static final class RamseteConstants {
-        /*
-        public static final double kS = 0.0;
-        public static final double kV= 0.0;
-        public static final double kA= 0.0;
-    
-        public static final double kPVel = 0.0;
-        */
         // PLACEHOLDER VALUES FOR SIMULATION
         public static final double kS = 0.22;
         public static final double kV= 2.98;
         public static final double kA= 0.2;
 
-        public static final double kVangular = 1.0; // 1.0
-        public static final double kAangular = 1.0; // 1.0
+        public static final double kVangular = 1.0;
+        public static final double kAangular = 1.0;
     
-        public static final double kPVel = 4.6; // 0.6
+        public static final double kPVel = 4.6;
 
         public static final double kMaxSpeed = 1; // In meters per second
         public static final double kMaxAcceleration = 3; // 3 In meters per second per second
