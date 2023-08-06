@@ -54,7 +54,6 @@ public class DriveTrain extends SubsystemBase {
 
   private Field2d field = new Field2d();
 
-
   // Provides variable to store motor voltage for simulator use
   private double simRightVolts;
   private double simLeftVolts;
@@ -64,46 +63,50 @@ public class DriveTrain extends SubsystemBase {
     leftDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.LeftDriveTalonPort);
     rightDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.RightDriveTalonPort);
 
-    // leftVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.LeftDriveVictorPort);
-    // rightVictor = new WPI_VictorSPX(Constants.DriveTrainPorts.RightDriveVictorPort);
+    // leftVictor = new
+    // WPI_VictorSPX(Constants.DriveTrainPorts.LeftDriveVictorPort);
+    // rightVictor = new
+    // WPI_VictorSPX(Constants.DriveTrainPorts.RightDriveVictorPort);
 
-      leftDriveSim = leftDriveTalon.getSimCollection();
-      rightDriveSim = rightDriveTalon.getSimCollection();
-      
-      
-      /*driveSim = DifferentialDrivetrainSim.createKitbotSim(
+    leftDriveSim = leftDriveTalon.getSimCollection();
+    rightDriveSim = rightDriveTalon.getSimCollection();
+
+    driveSim = DifferentialDrivetrainSim.createKitbotSim(
         KitbotMotor.kDualCIMPerSide, // 2 CIMs per side.
-        KitbotGearing.k10p71,        // 10.71:1
-        KitbotWheelSize.kSixInch,    // 6" diameter wheels.
-        VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
-      );*/
-      
-    
-      // Create the simulation model of our drivetrain.
-      driveSim = new DifferentialDrivetrainSim(
-        // Create a linear system from our identification gains.
-        LinearSystemId.identifyDrivetrainSystem(Constants.RamseteConstants.kV, Constants.RamseteConstants.kA, Constants.RamseteConstants.kVangular, Constants.RamseteConstants.kAangular),
-        DCMotor.getCIM(1),       // 1 CIM motor on each side of the drivetrain.
-        10.71,                    // 10.71:1 gearing reduction.
-        Constants.RamseteConstants.kTrackwidthMeters,   // The track width is 0.7112 meters.
-        Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-
-        // The standard deviations for measurement noise:
-        // x and y:          0.001 m
-        // heading:          0.001 rad
-        // l and r velocity: 0.1   m/s
-        // l and r position: 0.005 m
+        KitbotGearing.k10p71, // 10.71:1
+        KitbotWheelSize.kSixInch, // 6" diameter wheels.
         VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
-  
-    // Motor settings
-    leftDriveTalon.setNeutralMode(NeutralMode.Coast);
-    rightDriveTalon.setNeutralMode(NeutralMode.Coast);
 
-    leftDriveTalon.setInverted(false);
-    rightDriveTalon.setInverted(true);
+    // Create the simulation model of our drivetrain.
+    /*
+     * driveSim = new DifferentialDrivetrainSim(
+     * // Create a linear system from our identification gains.
+     * LinearSystemId.identifyDrivetrainSystem(Constants.RamseteConstants.kV,
+     * Constants.RamseteConstants.kA, Constants.RamseteConstants.kVangular,
+     * Constants.RamseteConstants.kAangular),
+     * DCMotor.getCIM(1), // 1 CIM motor on each side of the drivetrain.
+     * 10.71, // 10.71:1 gearing reduction.
+     * Constants.RamseteConstants.kTrackwidthMeters, // The track width is 0.7112
+     * meters.
+     * Units.inchesToMeters(3), // The robot uses 3" radius wheels.
+     * 
+     * // The standard deviations for measurement noise:
+     * // x and y: 0.001 m
+     * // heading: 0.001 rad
+     * // l and r velocity: 0.1 m/s
+     * // l and r position: 0.005 m
+     * VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+     */
+
+    // Motor settings
+    leftDriveTalon.setNeutralMode(NeutralMode.Brake);
+    rightDriveTalon.setNeutralMode(NeutralMode.Brake);
+
+    leftDriveTalon.setInverted(true);
+    rightDriveTalon.setInverted(false);
 
     leftDriveTalon.setSensorPhase(true);
-    rightDriveTalon.setSensorPhase(true);
+    // rightDriveTalon.setSensorPhase(true);
 
     leftDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
     rightDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
@@ -112,13 +115,13 @@ public class DriveTrain extends SubsystemBase {
     // rightVictor.follow(rightDriveTalon);
 
     resetEncoders();
-    
+
     drive = new DifferentialDrive(leftDriveTalon, rightDriveTalon);
 
     odometry = new DifferentialDriveOdometry(navx.getRotation2d(), getLeftDistance(), getRightDistance());
 
-    leftDriveTalon.setExpiration(.1);
-    rightDriveTalon.setExpiration(.1);
+    leftDriveTalon.setExpiration(.02);
+    rightDriveTalon.setExpiration(.02);
 
   }
 
@@ -145,7 +148,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the displacement in meters (m)
    */
   public double getLeftDistance() {
-    return -leftDriveTalon.getSelectedSensorPosition()/Constants.DriveToLineConstants.ticksToMeters;
+    return leftDriveTalon.getSelectedSensorPosition() / Constants.DriveToLineConstants.ticksToMeters;
   }
 
   /**
@@ -154,7 +157,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the displacement in meters (m)
    */
   public double getRightDistance() {
-    return -rightDriveTalon.getSelectedSensorPosition()/Constants.DriveToLineConstants.ticksToMeters;
+    return rightDriveTalon.getSelectedSensorPosition() / Constants.DriveToLineConstants.ticksToMeters;
   }
 
   /**
@@ -163,7 +166,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the linear velocity in meters/s (m/s)
    */
   public double getLeftSpeed() {
-    return -(leftDriveTalon.getSelectedSensorVelocity()*10.0)/Constants.DriveToLineConstants.ticksToMeters;
+    return (leftDriveTalon.getSelectedSensorVelocity() * 10.0) / Constants.DriveToLineConstants.ticksToMeters;
   }
 
   /**
@@ -172,15 +175,15 @@ public class DriveTrain extends SubsystemBase {
    * @return the linear velocity in meters/s (m/s)
    */
   public double getRightSpeed() {
-    return -(rightDriveTalon.getSelectedSensorVelocity()*10.0)/Constants.DriveToLineConstants.ticksToMeters;
+    return (rightDriveTalon.getSelectedSensorVelocity() * 10.0) / Constants.DriveToLineConstants.ticksToMeters;
   }
 
   @Override
   public void periodic() {
     if (RobotBase.isReal()) {
-    // This method will be called once per scheduler run
-    SmartDashboard.putData("Field", field);
-    field.setRobotPose(getPose());
+      // This method will be called once per scheduler run
+      SmartDashboard.putData("Field", field);
+      field.setRobotPose(getPose());
     }
     odometry.update(navx.getRotation2d(), getLeftDistance(), getRightDistance());
   }
@@ -198,24 +201,20 @@ public class DriveTrain extends SubsystemBase {
     // Update Quadrature for Left
 
     leftDriveSim.setQuadratureRawPosition(
-      distanceToNativeUnits(
-          driveSim.getLeftPositionMeters()
-      ));
+        distanceToNativeUnits(
+            driveSim.getLeftPositionMeters()));
     leftDriveSim.setQuadratureVelocity(
-      velocityToNativeUnits(
-          driveSim.getLeftVelocityMetersPerSecond()
-      ));
-    
+        velocityToNativeUnits(
+            driveSim.getLeftVelocityMetersPerSecond()));
+
     // Update Quadrature for Right
-    
+
     rightDriveSim.setQuadratureRawPosition(
-      distanceToNativeUnits(
-          -driveSim.getRightPositionMeters()
-      ));
+        distanceToNativeUnits(
+            driveSim.getRightPositionMeters()));
     rightDriveSim.setQuadratureVelocity(
-      velocityToNativeUnits(
-          -driveSim.getRightVelocityMetersPerSecond()
-      ));
+        velocityToNativeUnits(
+            driveSim.getRightVelocityMetersPerSecond()));
 
     // Update Gyro
     int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
@@ -230,14 +229,14 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("RightPosition", getRightDistance());
     SmartDashboard.putNumber("LeftVel", getLeftSpeed());
     SmartDashboard.putNumber("RightVel", getRightSpeed());
-    
+
   }
 
   /**
-  * Returns the currently-estimated pose of the robot.
-  *
-  * @return The pose.
-  */
+   * Returns the currently-estimated pose of the robot.
+   *
+   * @return The pose.
+   */
   public Pose2d getPose() {
     return odometry.getPoseMeters();
   }
@@ -276,11 +275,11 @@ public class DriveTrain extends SubsystemBase {
    * Controls the left and right sides of the drive directly with voltages.
    * Voltage is the native unit of Feedforward with WPILib
    *
-   * @param leftVolts the commanded left output
+   * @param leftVolts  the commanded left output
    * @param rightVolts the commanded right output
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    //drive.setSafetyEnabled(false);
+    // drive.setSafetyEnabled(false);
     simLeftVolts = leftVolts;
     simRightVolts = rightVolts;
     leftDriveTalon.setVoltage(leftVolts);
@@ -291,23 +290,28 @@ public class DriveTrain extends SubsystemBase {
 
   // CTRE SIM methods:
 
-  private int distanceToNativeUnits(double positionMeters){
-    double wheelRotations = positionMeters/(2 * Math.PI * Units.inchesToMeters(6.0));
+  private int distanceToNativeUnits(double positionMeters) {
+    double wheelRotations = positionMeters
+        / (Math.PI * Units.inchesToMeters(Constants.DriveToLineConstants.wheelDiameterInInches));
     double motorRotations = wheelRotations * 1.0;
-    int sensorCounts = (int)(motorRotations * 4096.0);
+    int sensorCounts = (int) (motorRotations * 4096.0);
     return sensorCounts;
   }
 
-  private int velocityToNativeUnits(double velocityMetersPerSecond){
-    double wheelRotationsPerSecond = velocityMetersPerSecond/(2 * Math.PI * Units.inchesToMeters(6.0));
+  private int velocityToNativeUnits(double velocityMetersPerSecond) {
+    // Previous mistake: multiply this by 2
+    // Consequences: had to set the constant to 0.5 less
+    // Now it works without the 2
+    double wheelRotationsPerSecond = velocityMetersPerSecond
+        / (Math.PI * Units.inchesToMeters(Constants.DriveToLineConstants.wheelDiameterInInches));
     double motorRotationsPerSecond = wheelRotationsPerSecond * 1.0;
     double motorRotationsPer100ms = motorRotationsPerSecond / 10.0;
-    int sensorCountsPer100ms = (int)(motorRotationsPer100ms * 4096.0);
+    int sensorCountsPer100ms = (int) (motorRotationsPer100ms * 4096.0);
     return sensorCountsPer100ms;
   }
 
-  private double nativeUnitsToDistanceMeters(double sensorCounts){
-    double motorRotations = (double)sensorCounts / 4096.0;
+  private double nativeUnitsToDistanceMeters(double sensorCounts) {
+    double motorRotations = (double) sensorCounts / 4096.0;
     double wheelRotations = motorRotations / 1.0;
     double positionMeters = wheelRotations * (2 * Math.PI * Units.inchesToMeters(6.0));
     return positionMeters;
@@ -323,7 +327,8 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Sets the max output of the drive. Useful for scaling the drive to drive more slowly.
+   * Sets the max output of the drive. Useful for scaling the drive to drive more
+   * slowly.
    *
    * @param maxOutput the maximum output to which the drive will be constrained
    */
