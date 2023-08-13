@@ -71,32 +71,34 @@ public class DriveTrain extends SubsystemBase {
     leftDriveSim = leftDriveTalon.getSimCollection();
     rightDriveSim = rightDriveTalon.getSimCollection();
 
+    /*
+    // Kitbot sim is too inaccurate for any useful use
     driveSim = DifferentialDrivetrainSim.createKitbotSim(
         KitbotMotor.kDualCIMPerSide, // 2 CIMs per side.
         KitbotGearing.k10p71, // 10.71:1
         KitbotWheelSize.kSixInch, // 6" diameter wheels.
-        VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
-
+        VecBuilder.fill(0.001, 0.0001, 0.001, 0.1, 0.1, 0.005, 0.005));
+*/
     // Create the simulation model of our drivetrain.
-    /*
-     * driveSim = new DifferentialDrivetrainSim(
-     * // Create a linear system from our identification gains.
-     * LinearSystemId.identifyDrivetrainSystem(Constants.RamseteConstants.kV,
-     * Constants.RamseteConstants.kA, Constants.RamseteConstants.kVangular,
-     * Constants.RamseteConstants.kAangular),
-     * DCMotor.getCIM(1), // 1 CIM motor on each side of the drivetrain.
-     * 10.71, // 10.71:1 gearing reduction.
-     * Constants.RamseteConstants.kTrackwidthMeters, // The track width is 0.7112
-     * meters.
-     * Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-     * 
-     * // The standard deviations for measurement noise:
-     * // x and y: 0.001 m
-     * // heading: 0.001 rad
-     * // l and r velocity: 0.1 m/s
-     * // l and r position: 0.005 m
-     * VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
-     */
+    
+    /* */
+    driveSim = new DifferentialDrivetrainSim(
+    // Create a linear system from our identification gains.
+    LinearSystemId.identifyDrivetrainSystem(Constants.RamseteConstants.kV,
+    Constants.RamseteConstants.kA, Constants.RamseteConstants.kVangular,
+    Constants.RamseteConstants.kAangular),
+    DCMotor.getCIM(1), // 1 CIM motor on each side of the drivetrain.
+    10.71, // 10.71:1 gearing reduction.
+    Constants.RamseteConstants.kTrackwidthMeters, // The track width is 0.7112
+    Units.inchesToMeters(3), // The robot uses 3" radius wheels.
+      
+    // The standard deviations for measurement noise:
+    // x and y: 0.001 m
+    // heading: 0.001 rad
+    // l and r velocity: 0.1 m/s
+    // l and r position: 0.005 m
+    VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+    
 
     // Motor settings
     leftDriveTalon.setNeutralMode(NeutralMode.Brake);
@@ -106,6 +108,7 @@ public class DriveTrain extends SubsystemBase {
     rightDriveTalon.setInverted(false);
 
     leftDriveTalon.setSensorPhase(true);
+    rightDriveTalon.setSensorPhase(true);
     // rightDriveTalon.setSensorPhase(true);
 
     leftDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
@@ -184,8 +187,25 @@ public class DriveTrain extends SubsystemBase {
       // This method will be called once per scheduler run
       SmartDashboard.putData("Field", field);
       field.setRobotPose(getPose());
+
+      SmartDashboard.putNumber("Heading", field.getRobotPose().getRotation().getDegrees());
+
+      SmartDashboard.putNumber("LeftPosition", getLeftDistance());
+      SmartDashboard.putNumber("RightPosition", getRightDistance());
+      SmartDashboard.putNumber("LeftVel", getLeftSpeed());
+      SmartDashboard.putNumber("RightVel", getRightSpeed());
+  
+      // Turn rate returns 0 in sim, same in real life?
+      // Turn rate is never used
+      SmartDashboard.putNumber("TurnRate", getTurnRate());
     }
-    odometry.update(navx.getRotation2d(), getLeftDistance(), getRightDistance());
+    SmartDashboard.putNumber("Navx Angle", getAngle());
+    SmartDashboard.putNumber("Navx Raw Rotation2D", navx.getRotation2d().getDegrees());
+
+    // Runs for both real and non-real robot
+    // Heading of NavX must be negated, as it is clockwise positive
+    // Heading should be counterclockwise-positive instead
+    odometry.update(navx.getRotation2d().unaryMinus(), getLeftDistance(), getRightDistance());
   }
 
   @Override
@@ -208,27 +228,35 @@ public class DriveTrain extends SubsystemBase {
             driveSim.getLeftVelocityMetersPerSecond()));
 
     // Update Quadrature for Right
+    // Have to flip, to match phase of real encoder
+    // Left wheel goes CCW, Right goes CW for forward by default
 
     rightDriveSim.setQuadratureRawPosition(
         distanceToNativeUnits(
-            driveSim.getRightPositionMeters()));
+            -driveSim.getRightPositionMeters()));
     rightDriveSim.setQuadratureVelocity(
         velocityToNativeUnits(
-            driveSim.getRightVelocityMetersPerSecond()));
+            -driveSim.getRightVelocityMetersPerSecond()));
 
     // Update Gyro
     int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
     SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
-    angle.set(-driveSim.getHeading().getDegrees());
+    angle.set(driveSim.getHeading().getDegrees());
 
     field.setRobotPose(driveSim.getPose());
     SmartDashboard.putData("Field", field);
-    SmartDashboard.putNumber("Heading:", driveSim.getHeading().getDegrees());
+    SmartDashboard.putNumber("Heading", driveSim.getHeading().getDegrees());
 
     SmartDashboard.putNumber("LeftPosition", getLeftDistance());
     SmartDashboard.putNumber("RightPosition", getRightDistance());
     SmartDashboard.putNumber("LeftVel", getLeftSpeed());
     SmartDashboard.putNumber("RightVel", getRightSpeed());
+
+    // Turn rate returns 0 in sim, same in real life?
+    // Turn rate is never used
+    SmartDashboard.putNumber("TurnRate", getTurnRate());
+    SmartDashboard.putNumber("SimAng", angle.get());
+    
 
   }
 
@@ -347,7 +375,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
-    return navx.getRotation2d().getDegrees();
+    return -navx.getRotation2d().getDegrees();
   }
 
   /**
@@ -356,7 +384,7 @@ public class DriveTrain extends SubsystemBase {
    * @return The turn rate of the robot, in degrees per second
    */
   public double getTurnRate() {
-    return navx.getRate();
+    return -navx.getRate();
   }
 
   /**

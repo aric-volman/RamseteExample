@@ -21,8 +21,8 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 public final class Constants {
 
     public static final class DriveTrainPorts {
-        public static final int LeftDriveTalonPort = 1;
-        public static final int RightDriveTalonPort = 2;
+        public static final int LeftDriveTalonPort = 2;
+        public static final int RightDriveTalonPort = 3;
         public static final int LeftDriveVictorPort = 4;
         public static final int RightDriveVictorPort = 5;
     }
@@ -39,6 +39,7 @@ public final class Constants {
 
     public static final class RamseteConstants {
         // PLACEHOLDER VALUES FOR SIMULATION
+        
         public static final double kS = 0.22;
         public static final double kV = 2.98;
         public static final double kA = 0.2;
@@ -46,9 +47,9 @@ public final class Constants {
         public static final double kVangular = 1.0;
         public static final double kAangular = 1.0;
 
-        public static final double kPVel = 4.6;
+        public static final double kPVel = 3.3;
 
-        public static final double kMaxSpeed = 2; // In meters per second
+        public static final double kMaxSpeed = 0.25; // In meters per second
         public static final double kMaxAcceleration = 3; // 3 In meters per second per second
 
         public static final double kTrackwidthMeters = 0.69; // Average chassis width - From AndyMark measurements
@@ -57,6 +58,8 @@ public final class Constants {
 
         public static final double kRamseteB = 2.0;
         public static final double kRamseteZeta = 0.7;
+
+        public static double driveTime = 0.0;
 
     }
 }

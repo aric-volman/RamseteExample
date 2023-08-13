@@ -17,11 +17,13 @@ public class RobotContainer {
 
   public static DriveTrain dt = new DriveTrain();
   public Ramsete ramsete = new Ramsete();
+  public TankDrive tankDrive = new TankDrive(dt);
 
   public static Joystick joy1 = new Joystick(0);
   public static Joystick joy2 = new Joystick(1);
 
   public RobotContainer() {
+    dt.setDefaultCommand(tankDrive);
     configureBindings();
   }
 
@@ -35,7 +37,7 @@ public class RobotContainer {
     return joy1;
   }
 
-  public static Joystick getJoy2() {
+    public static Joystick getJoy2() {
     return joy2;
   }
 
