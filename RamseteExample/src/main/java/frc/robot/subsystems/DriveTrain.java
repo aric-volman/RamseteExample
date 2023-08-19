@@ -15,6 +15,7 @@ import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -52,7 +53,7 @@ public class DriveTrain extends SubsystemBase {
 
   private static AHRS navx = new AHRS(SPI.Port.kMXP);
 
-  private Field2d field = new Field2d();
+  private Field2d field;
 
   // Provides variable to store motor voltage for simulator use
   private double simRightVolts;
@@ -104,8 +105,8 @@ public class DriveTrain extends SubsystemBase {
     leftDriveTalon.setNeutralMode(NeutralMode.Brake);
     rightDriveTalon.setNeutralMode(NeutralMode.Brake);
 
-    leftDriveTalon.setInverted(true);
-    rightDriveTalon.setInverted(false);
+    leftDriveTalon.setInverted(false);
+    rightDriveTalon.setInverted(true);
 
     leftDriveTalon.setSensorPhase(true);
     rightDriveTalon.setSensorPhase(true);
@@ -118,6 +119,9 @@ public class DriveTrain extends SubsystemBase {
     // rightVictor.follow(rightDriveTalon);
 
     resetEncoders();
+    navx.reset();
+    field = new Field2d();
+    field.setRobotPose(new Pose2d(0, 0, new Rotation2d(0)));
 
     drive = new DifferentialDrive(leftDriveTalon, rightDriveTalon);
 
@@ -142,7 +146,7 @@ public class DriveTrain extends SubsystemBase {
    * @return the angular displacement (degrees)
    */
   public static double getAngle() {
-    return navx.getAngle();
+    return -navx.getAngle();
   }
 
   /**
@@ -183,12 +187,11 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (RobotBase.isReal()) {
       // This method will be called once per scheduler run
       SmartDashboard.putData("Field", field);
       field.setRobotPose(getPose());
 
-      SmartDashboard.putNumber("Heading", field.getRobotPose().getRotation().getDegrees());
+      SmartDashboard.putNumber("Heading", field.getRobotPose().getRotation().unaryMinus().getDegrees());
 
       SmartDashboard.putNumber("LeftPosition", getLeftDistance());
       SmartDashboard.putNumber("RightPosition", getRightDistance());
@@ -198,14 +201,13 @@ public class DriveTrain extends SubsystemBase {
       // Turn rate returns 0 in sim, same in real life?
       // Turn rate is never used
       SmartDashboard.putNumber("TurnRate", getTurnRate());
-    }
     SmartDashboard.putNumber("Navx Angle", getAngle());
     SmartDashboard.putNumber("Navx Raw Rotation2D", navx.getRotation2d().getDegrees());
 
     // Runs for both real and non-real robot
     // Heading of NavX must be negated, as it is clockwise positive
     // Heading should be counterclockwise-positive instead
-    odometry.update(navx.getRotation2d().unaryMinus(), getLeftDistance(), getRightDistance());
+    odometry.update(navx.getRotation2d(), getLeftDistance(), getRightDistance());
   }
 
   @Override
