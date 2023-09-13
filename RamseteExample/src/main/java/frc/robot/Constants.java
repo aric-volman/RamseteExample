@@ -38,25 +38,32 @@ public final class Constants {
     }
 
     public static final class RamseteConstants {
-        // PLACEHOLDER VALUES FOR SIMULATION
         
+        /* 
         public static final double kS = 0.66153;
         public static final double kV = 34.884;
-        public static final double kA = 8.8859;
+        public static final double kA = 8.8859; */
+        
+        
+        // PLACEHOLDER VALUES FOR SIMULATION
+        public static final double kS = 0.22;
+        public static final double kV = 2.98;
+        public static final double kA = 0.2;
 
         public static final double kVangular = 1.0;
         public static final double kAangular = 1.0;
 
         public static final double kPVel = 0.062231;
+        // public static final double kPVel = 0.001231;
 
-        public static final double kMaxSpeed = 0.5; // In meters per second
-        public static final double kMaxAcceleration = 3; // 3 In meters per second per second
+        public static final double kMaxSpeed = 0.3; // In meters per second
+        public static final double kMaxAcceleration = 2; // 3 In meters per second per second
 
         public static final double kTrackwidthMeters = 0.69; // Average chassis width - From AndyMark measurements
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(
                 kTrackwidthMeters);
 
-        public static final double kRamseteB = 2.0;
+        public static final double kRamseteB = 3.0;
         public static final double kRamseteZeta = 0.7;
 
         public static double driveTime = 0.0;

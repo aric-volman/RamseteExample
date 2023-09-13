@@ -24,7 +24,9 @@ public class TankDrive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    RobotContainer.dt.tankDriveVolts(0.6*-12.0*RobotContainer.getJoy1().getY(), 0.6*-12.0*RobotContainer.getJoy2().getY());
+    RobotContainer.dt.tankDriveVolts(0.6*-12.0*RobotContainer.getJoy1().getRawAxis(1), 0.6*-12.0*RobotContainer.getJoy1().getRawAxis(4));
+
+    // http://www.team358.org/files/programming/ControlSystem2015-2019/images/Logitech-F310_ControlMapping.pdf
   }
 
   // Called once the command ends or is interrupted.

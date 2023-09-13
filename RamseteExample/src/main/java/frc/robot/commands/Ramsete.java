@@ -50,7 +50,7 @@ public class Ramsete extends SequentialCommandGroup {
             Constants.RamseteConstants.kV,
             Constants.RamseteConstants.kA),
         Constants.RamseteConstants.kDriveKinematics,
-        12);
+        11);
 
     // Create config for trajectory
     TrajectoryConfig config = new TrajectoryConfig(

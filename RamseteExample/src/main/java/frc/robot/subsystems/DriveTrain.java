@@ -82,7 +82,7 @@ public class DriveTrain extends SubsystemBase {
 */
     // Create the simulation model of our drivetrain.
     
-    /* */
+    /**/
     driveSim = new DifferentialDrivetrainSim(
     // Create a linear system from our identification gains.
     LinearSystemId.identifyDrivetrainSystem(Constants.RamseteConstants.kV,
@@ -98,19 +98,18 @@ public class DriveTrain extends SubsystemBase {
     // heading: 0.001 rad
     // l and r velocity: 0.1 m/s
     // l and r position: 0.005 m
-    VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+    VecBuilder.fill(0.0001, 0.0001, 0.0001, 0.01, 0.01, 0.0005, 0.0005));
     
 
     // Motor settings
-    leftDriveTalon.setNeutralMode(NeutralMode.Brake);
-    rightDriveTalon.setNeutralMode(NeutralMode.Brake);
+    leftDriveTalon.setNeutralMode(NeutralMode.Coast);
+    rightDriveTalon.setNeutralMode(NeutralMode.Coast);
 
     leftDriveTalon.setInverted(false);
     rightDriveTalon.setInverted(true);
 
     leftDriveTalon.setSensorPhase(true);
     rightDriveTalon.setSensorPhase(true);
-    // rightDriveTalon.setSensorPhase(true);
 
     leftDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
     rightDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
@@ -207,7 +206,9 @@ public class DriveTrain extends SubsystemBase {
     // Runs for both real and non-real robot
     // Heading of NavX must be negated, as it is clockwise positive
     // Heading should be counterclockwise-positive instead
+    if (Robot.isReal()) {
     odometry.update(navx.getRotation2d(), getLeftDistance(), getRightDistance());
+    }
   }
 
   @Override
@@ -224,10 +225,10 @@ public class DriveTrain extends SubsystemBase {
 
     leftDriveSim.setQuadratureRawPosition(
         distanceToNativeUnits(
-            driveSim.getLeftPositionMeters()));
+            -driveSim.getLeftPositionMeters()));
     leftDriveSim.setQuadratureVelocity(
         velocityToNativeUnits(
-            driveSim.getLeftVelocityMetersPerSecond()));
+            -driveSim.getLeftVelocityMetersPerSecond()));
 
     // Update Quadrature for Right
     // Have to flip, to match phase of real encoder
@@ -235,10 +236,10 @@ public class DriveTrain extends SubsystemBase {
 
     rightDriveSim.setQuadratureRawPosition(
         distanceToNativeUnits(
-            -driveSim.getRightPositionMeters()));
+            driveSim.getRightPositionMeters()));
     rightDriveSim.setQuadratureVelocity(
         velocityToNativeUnits(
-            -driveSim.getRightVelocityMetersPerSecond()));
+            driveSim.getRightVelocityMetersPerSecond()));
 
     // Update Gyro
     int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
@@ -258,8 +259,9 @@ public class DriveTrain extends SubsystemBase {
     // Turn rate is never used
     SmartDashboard.putNumber("TurnRate", getTurnRate());
     SmartDashboard.putNumber("SimAng", angle.get());
-    
-
+    if (Robot.isSimulation()) {
+    odometry.update(navx.getRotation2d().unaryMinus(), getLeftDistance(), getRightDistance());
+    }
   }
 
   /**
