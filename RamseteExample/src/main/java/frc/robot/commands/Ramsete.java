@@ -102,9 +102,10 @@ public class Ramsete extends SequentialCommandGroup {
         RobotContainer.dt);
 
     // Reset odometry to the starting pose of the trajectory.
-    RobotContainer.dt.getField2d().setRobotPose(new Pose2d(0, 0, new Rotation2d(0)));
+    //RobotContainer.dt.getField2d().setRobotPose(new Pose2d(0, 0, new Rotation2d(0)));
     //RobotContainer.dt.resetOdometry(trajectory.getInitialPose());
     RobotContainer.dt.getField2d().getObject("traj").setTrajectory(trajectory);
+
 
     CommandBase ramC = ramseteCommand.handleInterrupt(() -> RobotContainer.dt.tankDriveVolts(0.0, 0.0)).andThen(() -> RobotContainer.dt.tankDriveVolts(0.0, 0.0));
     addCommands(ramC);
