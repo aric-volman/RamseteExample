@@ -16,6 +16,10 @@ import frc.robot.subsystems.*;
 public class RobotContainer {
 
   public static DriveTrain dt = new DriveTrain();
+  
+  // Simulation could be a gamechanger!
+  public DriveForward forward = new DriveForward(dt);
+
   public Ramsete ramsete = new Ramsete();
   public TankDrive tankDrive = new TankDrive(dt);
 
