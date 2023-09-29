@@ -79,31 +79,31 @@ public class DriveTrain extends SubsystemBase {
         KitbotGearing.k10p71, // 10.71:1
         KitbotWheelSize.kSixInch, // 6" diameter wheels.
         VecBuilder.fill(0.001, 0.0001, 0.001, 0.1, 0.1, 0.005, 0.005));
-*/
-    // Create the simulation model of our drivetrain.
+    */
     
-    /**/
+    // Create the simulation model of our drivetrain.
     driveSim = new DifferentialDrivetrainSim(
-    // Create a linear system from our identification gains.
-    LinearSystemId.identifyDrivetrainSystem(Constants.RamseteConstants.kV,
-    Constants.RamseteConstants.kA, Constants.RamseteConstants.kVangular,
-    Constants.RamseteConstants.kAangular),
-    DCMotor.getCIM(1), // 1 CIM motor on each side of the drivetrain.
-    10.71, // 10.71:1 gearing reduction.
-    Constants.RamseteConstants.kTrackwidthMeters, // The track width is 0.7112
-    Units.inchesToMeters(3), // The robot uses 3" radius wheels.
-      
-    // The standard deviations for measurement noise:
-    // x and y: 0.001 m
-    // heading: 0.001 rad
-    // l and r velocity: 0.1 m/s
-    // l and r position: 0.005 m
-    VecBuilder.fill(0.0001, 0.0001, 0.0001, 0.01, 0.01, 0.0005, 0.0005));
+      // Create a linear system from our identification gains.
+      LinearSystemId.identifyDrivetrainSystem(Constants.RamseteConstants.kV,
+      Constants.RamseteConstants.kA, Constants.RamseteConstants.kVangular,
+      Constants.RamseteConstants.kAangular),
+      DCMotor.getCIM(1), // 1 CIM motor on each side of the drivetrain.
+      10.71, // 10.71:1 gearing reduction.
+      Constants.RamseteConstants.kTrackwidthMeters, // The track width is 0.7112
+      Units.inchesToMeters(3), // The robot uses 3" radius wheels.
+        
+      // The standard deviations for measurement noise:
+      // x and y: 0.001 m
+      // heading: 0.001 rad
+      // l and r velocity: 0.1 m/s
+      // l and r position: 0.005 m
+      VecBuilder.fill(0.0001, 0.0001, 0.0001, 0.01, 0.01, 0.0005, 0.0005)
+    );
     
 
     // Motor settings
-    leftDriveTalon.setNeutralMode(NeutralMode.Coast);
-    rightDriveTalon.setNeutralMode(NeutralMode.Coast);
+    leftDriveTalon.setNeutralMode(NeutralMode.Brake);
+    rightDriveTalon.setNeutralMode(NeutralMode.Brake);
 
     leftDriveTalon.setInverted(false);
     rightDriveTalon.setInverted(true);
@@ -144,7 +144,7 @@ public class DriveTrain extends SubsystemBase {
    * 
    * @return the angular displacement (degrees)
    */
-  public static double getAngle() {
+  public double getAngle() {
     return -navx.getAngle();
   }
 

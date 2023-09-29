@@ -63,7 +63,7 @@ public final class Constants {
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(
                 kTrackwidthMeters);
 
-        public static final double kRamseteB = 3.0;
+        public static final double kRamseteB = 2.0;
         public static final double kRamseteZeta = 0.7;
 
         public static double driveTime = 0.0;

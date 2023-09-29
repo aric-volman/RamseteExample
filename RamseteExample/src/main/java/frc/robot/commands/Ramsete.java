@@ -37,7 +37,6 @@ public class Ramsete extends SequentialCommandGroup {
   // String trajectoryJSON = "pathplanner/generatedJSON/New New Path.wpilib.json";
   String trajectoryJSON = "pathplanner/generatedJSON/New New New Path.wpilib.json";
   Trajectory trajectory = new Trajectory();
-  double pastTime = Timer.getFPGATimestamp();
 
   public Ramsete() {
     // Add your commands in the addCommands() call, e.g.
@@ -66,18 +65,7 @@ public class Ramsete extends SequentialCommandGroup {
     // Install:
     // https://3015rangerrobotics.github.io/pathplannerlib/PathplannerLib.json
     // An example trajectory to follow. All units in meters.
-    /*
-     * Trajectory trajectory =
-     * TrajectoryGenerator.generateTrajectory(
-     * // Start at the origin facing the +X direction
-     * new Pose2d(0, 0, new Rotation2d(0)),
-     * // Pass through these two interior waypoints, making an 's' curve path
-     * List.of(new Translation2d(2, 3.5), new Translation2d(4, 2)),
-     * // End 3 meters straight ahead of where we started, facing forward
-     * new Pose2d(6.0, 0.0, new Rotation2d(0)),
-     * // Pass config
-     * config);
-     */
+
     try {
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
       trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
@@ -102,13 +90,16 @@ public class Ramsete extends SequentialCommandGroup {
         RobotContainer.dt);
 
     // Reset odometry to the starting pose of the trajectory.
-    //RobotContainer.dt.getField2d().setRobotPose(new Pose2d(0, 0, new Rotation2d(0)));
-    //RobotContainer.dt.resetOdometry(trajectory.getInitialPose());
+    // RobotContainer.dt.getField2d().setRobotPose(new Pose2d(0, 0, new
+    // Rotation2d(0)));
+    // RobotContainer.dt.resetOdometry(trajectory.getInitialPose());
     RobotContainer.dt.getField2d().getObject("traj").setTrajectory(trajectory);
 
+    CommandBase ramc = ramseteCommand.handleInterrupt(() -> RobotContainer.dt.tankDriveVolts(0.0, 0.0))
+        .andThen(() -> RobotContainer.dt.tankDriveVolts(0.0, 0.0));
 
-    CommandBase ramC = ramseteCommand.handleInterrupt(() -> RobotContainer.dt.tankDriveVolts(0.0, 0.0)).andThen(() -> RobotContainer.dt.tankDriveVolts(0.0, 0.0));
-    addCommands(ramC);
+    addCommands(ramc);
+
   }
 
 }
