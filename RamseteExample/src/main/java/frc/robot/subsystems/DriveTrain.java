@@ -260,7 +260,7 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putNumber("TurnRate", getTurnRate());
     SmartDashboard.putNumber("SimAng", angle.get());
     if (Robot.isSimulation()) {
-    odometry.update(navx.getRotation2d().unaryMinus(), getLeftDistance(), getRightDistance());
+      odometry.update(navx.getRotation2d().unaryMinus(), getLeftDistance(), getRightDistance());
     }
   }
 
